@@ -4,22 +4,18 @@ import axios from 'axios';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  // Initialize user from localStorage immediately
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   // Set default axios header
   if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
-
-  useEffect(() => {
-    // If we have a token but no user data (e.g., refresh), usually we'd fetch profile here
-    // For MVP, we persist basic user info in localStorage too or decode token
-    const storedUser = localStorage.getItem('user');
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, [token]);
 
   const login = (userData, authToken) => {
     localStorage.setItem('token', authToken);

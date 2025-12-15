@@ -10,18 +10,16 @@ const { upload, cloudinary } = require('../config/cloudinary');
 // Get All Offers (With User Context)
 router.get('/', protect, async (req, res) => {
   try {
-    // Sort by newest first
     const offers = await Offer.find({}).sort({ createdAt: -1 });
-    const user = req.user; // User attached by protect middleware
+    const user = req.user;
 
-    // Map offers to include user-specific status flags
     const offersWithStatus = offers.map(offer => {
       const isClaimed = user.claimedOffers.includes(offer._id);
       const isLiked = offer.likes.includes(user._id);
       const isSaved = user.savedOffers.includes(offer._id);
 
       return {
-        ...offer._doc, // Spread original mongoose document
+        ...offer._doc,
         isClaimed,
         isLiked,
         isSaved
@@ -34,13 +32,32 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
+// [NEW] Get Single Offer Details
+router.get('/:id', protect, async (req, res) => {
+  try {
+    const offer = await Offer.findById(req.params.id);
+    if (!offer) return res.status(404).json({ message: 'Offer not found' });
+
+    const user = req.user;
+    const offerWithStatus = {
+      ...offer._doc,
+      isClaimed: user.claimedOffers.includes(offer._id),
+      isLiked: offer.likes.includes(user._id),
+      isSaved: user.savedOffers.includes(offer._id)
+    };
+
+    res.json(offerWithStatus);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error fetching offer' });
+  }
+});
+
 // Like an Offer
 router.put('/:id/like', protect, async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
     if (!offer) return res.status(404).json({ message: 'Offer not found' });
 
-    // Toggle Like
     if (offer.likes.includes(req.user._id)) {
       offer.likes = offer.likes.filter(id => id.toString() !== req.user._id.toString());
     } else {
@@ -103,7 +120,6 @@ router.post('/:id/claim', protect, async (req, res) => {
 // --- ADMIN ROUTES ---
 
 // Create Offer (With Image Upload)
-// Note: upload.single('image') processes the file BEFORE the controller runs
 router.post('/', protect, admin, upload.single('image'), async (req, res) => {
   try {
     const { title, restaurantName, location, validDays, description, phoneNumber } = req.body;
@@ -118,10 +134,9 @@ router.post('/', protect, admin, upload.single('image'), async (req, res) => {
       location,
       description,
       phoneNumber,
-      // FormData sends arrays as comma-separated strings
       validDays: validDays ? validDays.split(',') : [],
-      image: req.file.path,      // Cloudinary URL
-      imageId: req.file.filename // Cloudinary Public ID
+      image: req.file.path,
+      imageId: req.file.filename
     });
 
     const createdOffer = await offer.save();
@@ -145,7 +160,6 @@ router.put('/:id', protect, admin, async (req, res) => {
       offer.phoneNumber = req.body.phoneNumber || offer.phoneNumber;
       
       if (req.body.validDays) {
-        // Handle array update
         offer.validDays = req.body.validDays;
       }
 
@@ -163,16 +177,14 @@ router.put('/:id', protect, admin, async (req, res) => {
   }
 });
 
-// Delete Offer (Clean up Cloudinary)
+// Delete Offer
 router.delete('/:id', protect, admin, async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
     if (offer) {
-      // Remove image from Cloudinary if it exists using its Public ID
       if (offer.imageId) {
         await cloudinary.uploader.destroy(offer.imageId);
       }
-      
       await offer.deleteOne();
       res.json({ message: 'Offer removed' });
     } else {
