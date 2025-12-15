@@ -1,17 +1,20 @@
 const mongoose = require('mongoose');
 
 const offerSchema = mongoose.Schema({
-  title: { type: String, required: true }, // e.g., "25% OFF"
+  title: { type: String, required: true },
   restaurantName: { type: String, required: true },
   location: { type: String, required: true },
-  validDays: [{ type: String }], // ["Monday", "Sunday"]
-  description: { type: String }, // Stores text with emojis
+  validDays: [{ type: String }],
+  description: { type: String },
   phoneNumber: { type: String, required: true },
-  isActive: { type: Boolean, default: true },
   
-  // Analytics
-  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Array of User IDs to prevent double likes
-  claimsCount: { type: Number, default: 0 } // Total times claimed
+  // NEW FIELDS
+  image: { type: String, required: true }, // URL from Cloudinary
+  imageId: { type: String }, // Public ID for deletion (optional but recommended)
+
+  isActive: { type: Boolean, default: true },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  claimsCount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Offer', offerSchema);
