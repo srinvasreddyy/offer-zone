@@ -12,11 +12,12 @@ const UserDashboard = () => {
   const [offers, setOffers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('grid');
-  const [animatingLikes, setAnimatingLikes] = useState({}); // Track animations per offer ID
+  const [animatingLikes, setAnimatingLikes] = useState({});
 
   const fetchOffers = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/offers`);
+      // FIX: /api prefix added
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/offers`);
       setOffers(res.data);
     } catch (error) {
       console.error("Error fetching offers");
@@ -28,12 +29,12 @@ const UserDashboard = () => {
   const handleLike = async (e, id) => {
     e.stopPropagation();
     
-    // Trigger Animation
     setAnimatingLikes(prev => ({ ...prev, [id]: true }));
     setTimeout(() => setAnimatingLikes(prev => ({ ...prev, [id]: false })), 400);
 
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/offers/${id}/like`);
+      // FIX: /api prefix added
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/offers/${id}/like`);
       fetchOffers(); 
     } catch (error) { console.error("Like failed"); }
   };
@@ -41,12 +42,12 @@ const UserDashboard = () => {
   const handleSave = async (e, id) => {
     e.stopPropagation();
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/offers/${id}/save`);
+      // FIX: /api prefix added
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/offers/${id}/save`);
       fetchOffers(); 
     } catch (error) { console.error("Save failed"); }
   };
 
-  // Filter Logic
   const filteredOffers = offers.filter(offer => {
     const term = searchTerm.toLowerCase();
     return (
@@ -59,7 +60,6 @@ const UserDashboard = () => {
   return (
     <div className="container animate-fade-in" style={{ paddingBottom: '50px' }}>
       
-      {/* Header with Search & Toggle */}
       <div className="controls-bar animate-slide-up" style={{ marginTop: '30px' }}>
         <div className="search-container">
           <Search style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#999' }} size={20} />
@@ -90,7 +90,6 @@ const UserDashboard = () => {
         </div>
       </div>
 
-      {/* Offers Layout */}
       <div className={`grid-layout ${viewMode === 'list' ? 'list-view' : ''}`} style={{ marginTop: '30px' }}>
         {filteredOffers.map(offer => {
           if (offer.isClaimed) return null;
@@ -107,7 +106,6 @@ const UserDashboard = () => {
               }}
             >
               
-              {/* Card Image */}
               <div className="card-image-container">
                 <img 
                   src={offer.image} 
@@ -115,14 +113,12 @@ const UserDashboard = () => {
                   className="card-img"
                 />
                 
-                {/* Overlay Title (Only visible in Grid View) */}
                 {viewMode === 'grid' && (
                   <div className="card-overlay">
                     <h3 style={{ margin: 0, fontSize: '1.2rem', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{offer.title}</h3>
                   </div>
                 )}
 
-                {/* Like Button with Animation */}
                 <button 
                   className={`like-btn ${animatingLikes[offer._id] ? 'animate-like' : ''}`} 
                   onClick={(e) => handleLike(e, offer._id)}
@@ -131,7 +127,6 @@ const UserDashboard = () => {
                 </button>
               </div>
 
-              {/* Card Content */}
               <div className="card-content">
                 
                 {viewMode === 'list' && (
@@ -146,13 +141,12 @@ const UserDashboard = () => {
                 </div>
 
                 {viewMode === 'list' && (
-                  <p style={{ color: '#555', fontSize: '0.85rem', marginBottom: '10px', flex: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <p className="card-desc">
                     {offer.description}
                   </p>
                 )}
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
-                   {/* Save Button with Symbol */}
                    <button 
                     onClick={(e) => handleSave(e, offer._id)} 
                     className="btn btn-outline"

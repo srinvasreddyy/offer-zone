@@ -17,7 +17,8 @@ const AdminDashboard = () => {
 
   const fetchOffers = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/offers`);
+      // FIX: /api prefix added
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/offers`);
       setOffers(res.data);
     } catch (error) { console.error(error); }
   };
@@ -40,7 +41,8 @@ const AdminDashboard = () => {
     data.append('validDays', selectedDays.join(','));
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/offers`, data, { headers: { 'Content-Type': 'multipart/form-data' }});
+      // FIX: /api prefix added
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/offers`, data, { headers: { 'Content-Type': 'multipart/form-data' }});
       setFormData({ 
         title: '', restaurantName: '', location: '', description: '', phoneNumber: '',
         startTime: '', endTime: '', importantNote: ''
@@ -53,11 +55,13 @@ const AdminDashboard = () => {
   };
 
   const toggleStatus = async (id, currentStatus) => {
-    try { await axios.put(`${import.meta.env.VITE_API_URL}/offers/${id}`, { isActive: !currentStatus }); fetchOffers(); } catch (e) {}
+    // FIX: /api prefix added
+    try { await axios.put(`${import.meta.env.VITE_API_URL}/api/offers/${id}`, { isActive: !currentStatus }); fetchOffers(); } catch (e) {}
   };
 
   const deleteOffer = async (id) => {
-    if(confirm('Delete offer?')) { try { await axios.delete(`${import.meta.env.VITE_API_URL}/offers/${id}`); fetchOffers(); } catch (e) {} }
+    // FIX: /api prefix added
+    if(confirm('Delete offer?')) { try { await axios.delete(`${import.meta.env.VITE_API_URL}/api/offers/${id}`); fetchOffers(); } catch (e) {} }
   };
 
   return (

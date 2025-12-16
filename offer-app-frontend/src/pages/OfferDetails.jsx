@@ -19,7 +19,8 @@ const OfferDetails = () => {
   useEffect(() => {
     const fetchOffer = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/offers/${id}`);
+        // FIX: /api prefix added
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/offers/${id}`);
         setOffer(res.data);
       } catch (error) {
         console.error("Failed to fetch offer");
@@ -33,7 +34,8 @@ const OfferDetails = () => {
 
   const handleClaim = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/offers/${id}/claim`);
+      // FIX: /api prefix added
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/offers/${id}/claim`);
       setShowQR(false);
       setShowSuccessPopup(true);
     } catch (error) {
@@ -52,9 +54,6 @@ const OfferDetails = () => {
   return (
     <div className="animate-fade-in" style={{ paddingBottom: '40px' }}>
       
-      {/* FIX: Removed fixed height (40vh) and cover. 
-         Now using auto height to show full image without zooming/cropping.
-      */}
       <div style={{ position: 'relative', width: '100%', backgroundColor: '#f0f0f0' }}>
         <img 
           src={offer.image} 
@@ -62,26 +61,24 @@ const OfferDetails = () => {
           style={{ 
             width: '100%', 
             height: 'auto', 
-            maxHeight: '500px', // Prevent overly tall images
-            objectFit: 'contain', // Ensure full image is visible
+            maxHeight: '500px',
+            objectFit: 'contain', 
             display: 'block',
             margin: '0 auto' 
           }} 
         />
         
-        {/* Back Button Overlay */}
         <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10 }}>
           <button onClick={() => navigate(-1)} className="btn btn-glass" style={{ background: 'rgba(255,255,255,0.8)', borderRadius: '50%', width: '40px', height: '40px', padding: 0 }}>
             <ArrowLeft size={20} color="#333" />
           </button>
         </div>
 
-        {/* Title Overlay (Adjusted for flexible height) */}
         <div style={{ 
           background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)', 
           padding: '40px 20px 20px', 
           color: 'white',
-          marginTop: '-80px', // Pull up into the image area slightly
+          marginTop: '-80px',
           position: 'relative',
           zIndex: 5
         }}>
@@ -99,7 +96,6 @@ const OfferDetails = () => {
           
           <div className="details-grid">
             
-            {/* Left Column: Description */}
             <div className="details-content">
               <div style={{ display: 'flex', gap: '20px', marginBottom: '20px', color: '#666', flexWrap: 'wrap' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><MapPin size={18} color="#FF6B6B"/> {offer.location}</span>
@@ -136,7 +132,6 @@ const OfferDetails = () => {
               </div>
             </div>
 
-            {/* Right Column: Action Card */}
             <div>
               <div className="action-card">
                 {!showQR ? (

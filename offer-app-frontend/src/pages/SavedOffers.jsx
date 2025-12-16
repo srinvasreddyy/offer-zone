@@ -13,7 +13,8 @@ const SavedOffers = () => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile`);
+      // FIX: /api prefix added
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/profile`);
       setSavedOffers(res.data.savedOffers);
     } catch (error) {
       console.error("Error fetching saved offers");
@@ -24,7 +25,8 @@ const SavedOffers = () => {
     e.preventDefault(); 
     e.stopPropagation();
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/offers/${id}/save`);
+      // FIX: /api prefix added
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/offers/${id}/save`);
       fetchProfile(); 
     } catch (error) {
       console.error("Remove failed");
@@ -52,16 +54,12 @@ const SavedOffers = () => {
                onClick={() => navigate(`/offer/${offer._id}`)}
                style={{ cursor: 'pointer' }} 
              >
-                {/* FIX: Added specific classes so global CSS handles responsiveness 
-                   (Image left on mobile, top on desktop)
-                */}
                 <div className="card-image-container">
                   <img 
                     src={offer.image} 
                     alt={offer.title} 
                     className="card-img"
                   />
-                  {/* Remove Button */}
                   <button 
                     onClick={(e) => removeSaved(e, offer._id)}
                     style={{
@@ -76,7 +74,6 @@ const SavedOffers = () => {
                   </button>
                 </div>
 
-                {/* Content Section */}
                 <div className="card-content">
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#333' }}>{offer.title}</h3>
