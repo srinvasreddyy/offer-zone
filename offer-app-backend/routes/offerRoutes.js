@@ -7,7 +7,7 @@ const { upload, cloudinary } = require('../config/cloudinary');
 
 // --- PUBLIC / USER ROUTES ---
 
-// Get All Offers (With User Context)
+// Get All Offers
 router.get('/', protect, async (req, res) => {
   try {
     const offers = await Offer.find({}).sort({ createdAt: -1 });
@@ -32,7 +32,7 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-// [NEW] Get Single Offer Details
+// Get Single Offer
 router.get('/:id', protect, async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
@@ -52,7 +52,7 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
-// Like an Offer
+// Like Offer
 router.put('/:id/like', protect, async (req, res) => {
   try {
     const offer = await Offer.findById(req.params.id);
@@ -90,7 +90,7 @@ router.put('/:id/save', protect, async (req, res) => {
   }
 });
 
-// CLAIM OFFER (Record My Saving)
+// CLAIM OFFER
 router.post('/:id/claim', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -103,11 +103,9 @@ router.post('/:id/claim', protect, async (req, res) => {
       return res.status(400).json({ message: 'You have already used this offer' });
     }
 
-    // Update User
     user.claimedOffers.push(offer._id);
     await user.save();
 
-    // Update Offer Stats
     offer.claimsCount += 1;
     await offer.save();
 
@@ -119,10 +117,13 @@ router.post('/:id/claim', protect, async (req, res) => {
 
 // --- ADMIN ROUTES ---
 
-// Create Offer (With Image Upload)
+// Create Offer
 router.post('/', protect, admin, upload.single('image'), async (req, res) => {
   try {
-    const { title, restaurantName, location, validDays, description, phoneNumber } = req.body;
+    const { 
+      title, restaurantName, location, validDays, 
+      description, phoneNumber, startTime, endTime, importantNote 
+    } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ message: 'Image is required' });
@@ -134,6 +135,9 @@ router.post('/', protect, admin, upload.single('image'), async (req, res) => {
       location,
       description,
       phoneNumber,
+      startTime,
+      endTime,
+      importantNote,
       validDays: validDays ? validDays.split(',') : [],
       image: req.file.path,
       imageId: req.file.filename
@@ -159,6 +163,11 @@ router.put('/:id', protect, admin, async (req, res) => {
       offer.description = req.body.description || offer.description;
       offer.phoneNumber = req.body.phoneNumber || offer.phoneNumber;
       
+      // Update new fields if present
+      offer.startTime = req.body.startTime || offer.startTime;
+      offer.endTime = req.body.endTime || offer.endTime;
+      offer.importantNote = req.body.importantNote || offer.importantNote;
+
       if (req.body.validDays) {
         offer.validDays = req.body.validDays;
       }

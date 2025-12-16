@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Trash, Eye, EyeOff, UploadCloud, MapPin, Plus, Image as ImageIcon } from 'lucide-react';
+import { Trash, Eye, EyeOff, UploadCloud, Plus, Image as ImageIcon } from 'lucide-react';
 
 const daysOptions = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -10,7 +10,8 @@ const AdminDashboard = () => {
   const [imageFile, setImageFile] = useState(null);
   
   const [formData, setFormData] = useState({
-    title: '', restaurantName: '', location: '', description: '', phoneNumber: ''
+    title: '', restaurantName: '', location: '', description: '', phoneNumber: '',
+    startTime: '', endTime: '', importantNote: '' 
   });
   const [selectedDays, setSelectedDays] = useState([]);
 
@@ -40,7 +41,10 @@ const AdminDashboard = () => {
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/offers`, data, { headers: { 'Content-Type': 'multipart/form-data' }});
-      setFormData({ title: '', restaurantName: '', location: '', description: '', phoneNumber: '' });
+      setFormData({ 
+        title: '', restaurantName: '', location: '', description: '', phoneNumber: '',
+        startTime: '', endTime: '', importantNote: ''
+      });
       setSelectedDays([]); setImageFile(null);
       document.getElementById('fileInput').value = "";
       fetchOffers();
@@ -78,8 +82,21 @@ const AdminDashboard = () => {
             <input name="phoneNumber" className="input-field" placeholder="Phone Number" value={formData.phoneNumber} onChange={handleChange} required />
           </div>
 
-          <textarea name="description" className="input-field" placeholder="Description..." value={formData.description} onChange={handleChange} style={{ minHeight: '100px', marginBottom: '20px', fontFamily: 'inherit' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+            <div>
+              <label style={{fontSize: '0.85rem', color: '#666'}}>Start Time</label>
+              <input type="time" name="startTime" className="input-field" value={formData.startTime} onChange={handleChange} />
+            </div>
+            <div>
+              <label style={{fontSize: '0.85rem', color: '#666'}}>End Time</label>
+              <input type="time" name="endTime" className="input-field" value={formData.endTime} onChange={handleChange} />
+            </div>
+          </div>
+
+          <textarea name="description" className="input-field" placeholder="Description..." value={formData.description} onChange={handleChange} style={{ minHeight: '80px', marginBottom: '20px', fontFamily: 'inherit' }} />
           
+          <textarea name="importantNote" className="input-field" placeholder="Important Note (e.g. Must call in advance...)" value={formData.importantNote} onChange={handleChange} style={{ minHeight: '60px', marginBottom: '20px', fontFamily: 'inherit', borderColor: '#FFD93D' }} />
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '20px' }}>
             <div style={{ border: '2px dashed #ccc', borderRadius: '12px', padding: '20px', textAlign: 'center', cursor: 'pointer', background: '#fafafa' }} onClick={() => document.getElementById('fileInput').click()}>
               <ImageIcon size={30} color="#ccc" />

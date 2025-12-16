@@ -9,8 +9,12 @@ const offerSchema = mongoose.Schema({
   phoneNumber: { type: String, required: true },
   
   // NEW FIELDS
+  startTime: { type: String }, // e.g., "09:00"
+  endTime: { type: String },   // e.g., "17:00"
+  importantNote: { type: String }, // Special note/warning
+
   image: { type: String, required: true }, // URL from Cloudinary
-  imageId: { type: String }, // Public ID for deletion (optional but recommended)
+  imageId: { type: String }, // Public ID for deletion
 
   isActive: { type: Boolean, default: true },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

@@ -1,22 +1,39 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { MapPin, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { MapPin, ArrowRight, Trash2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SavedOffers = () => {
   const [savedOffers, setSavedOffers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile`);
-      setSavedOffers(res.data.savedOffers);
-    };
     fetchProfile();
   }, []);
 
+  const fetchProfile = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile`);
+      setSavedOffers(res.data.savedOffers);
+    } catch (error) {
+      console.error("Error fetching saved offers");
+    }
+  };
+
+  const removeSaved = async (e, id) => {
+    e.preventDefault(); 
+    e.stopPropagation();
+    try {
+      await axios.put(`${import.meta.env.VITE_API_URL}/offers/${id}/save`);
+      fetchProfile(); 
+    } catch (error) {
+      console.error("Remove failed");
+    }
+  };
+
   return (
-    <div className="container animate-fade-in">
-      <div style={{ margin: '30px 0' }}>
+    <div className="container animate-fade-in" style={{ paddingBottom: '40px' }}>
+      <div style={{ margin: '30px 0', textAlign: 'center' }}>
         <h2>Your Saved Collection</h2>
         <p style={{ color: '#666' }}>Don't let these expire!</p>
       </div>
@@ -29,20 +46,51 @@ const SavedOffers = () => {
       ) : (
         <div className="grid-layout">
           {savedOffers.map(offer => (
-             <div key={offer._id} className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#FF6B6B' }}>{offer.title}</h3>
+             <div 
+               key={offer._id} 
+               className="glass-card" 
+               onClick={() => navigate(`/offer/${offer._id}`)}
+               style={{ cursor: 'pointer' }} 
+             >
+                {/* FIX: Added specific classes so global CSS handles responsiveness 
+                   (Image left on mobile, top on desktop)
+                */}
+                <div className="card-image-container">
+                  <img 
+                    src={offer.image} 
+                    alt={offer.title} 
+                    className="card-img"
+                  />
+                  {/* Remove Button */}
+                  <button 
+                    onClick={(e) => removeSaved(e, offer._id)}
+                    style={{
+                      position: 'absolute', top: '10px', right: '10px',
+                      background: 'rgba(255,255,255,0.9)', border: 'none',
+                      borderRadius: '50%', padding: '8px', cursor: 'pointer',
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)', zIndex: 10
+                    }}
+                    title="Remove from Saved"
+                  >
+                    <Trash2 size={16} color="#ff4444"/>
+                  </button>
                 </div>
-                <h4 style={{ margin: 0, fontSize: '1rem' }}>{offer.restaurantName}</h4>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#666', fontSize: '0.85rem', marginBottom: '15px', marginTop: '5px' }}>
-                  <MapPin size={14}/> {offer.location}
+
+                {/* Content Section */}
+                <div className="card-content">
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#333' }}>{offer.title}</h3>
+                    <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', color: '#666', fontWeight: '500' }}>{offer.restaurantName}</h4>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#888', fontSize: '0.85rem', marginBottom: '15px' }}>
+                      <MapPin size={14}/> {offer.location}
+                    </div>
+                  </div>
+                  
+                  <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', padding: '10px', marginTop: 'auto' }}>
+                    View Deal <ArrowRight size={16}/>
+                  </button>
                 </div>
-                <p style={{ color: '#555', fontSize: '0.9rem', background: '#f5f5f5', padding: '10px', borderRadius: '8px', marginBottom: '20px' }}>
-                  {offer.description}
-                </p>
-                <Link to={`/offer/${offer._id}`} className="btn btn-outline" style={{ marginTop: 'auto', textAlign: 'center', justifyContent: 'center' }}>
-                  View & Redeem <ArrowRight size={16}/>
-                </Link>
              </div>
           ))}
         </div>

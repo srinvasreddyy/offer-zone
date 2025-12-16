@@ -1,12 +1,13 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import UserDashboard from './pages/UserDashboard';
 import SavedOffers from './pages/SavedOffers';
-import OfferDetails from './pages/OfferDetails'; // Ensure this path matches the file you created
+import OfferDetails from './pages/OfferDetails';
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
+import { Heart } from 'lucide-react';
 
 // Protected Route Component
 const PrivateRoute = ({ children, role }) => {
@@ -20,6 +21,9 @@ const PrivateRoute = ({ children, role }) => {
 };
 
 function App() {
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   return (
     <>
       <Navbar />
@@ -46,13 +50,23 @@ function App() {
           </PrivateRoute>
         } />
 
-        {/* New Offer Details Route */}
         <Route path="/offer/:id" element={
           <PrivateRoute role="user">
             <OfferDetails />
           </PrivateRoute>
         } />
       </Routes>
+
+      {/* Floating Saved Button (Only for Users) */}
+      {user && user.role === 'user' && (
+        <button 
+          className="fab-saved animate-pop-in" 
+          onClick={() => navigate('/saved')}
+          title="Saved Offers"
+        >
+          <Heart fill="white" size={28} />
+        </button>
+      )}
     </>
   );
 }

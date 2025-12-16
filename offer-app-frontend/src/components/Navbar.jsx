@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { LogOut, LayoutDashboard, Heart, Shield } from 'lucide-react';
+import { LogOut, LayoutDashboard, Shield } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -33,14 +33,9 @@ const Navbar = () => {
               <Shield size={18}/> <span style={{ marginLeft: '5px' }}>Admin</span>
             </Link>
           ) : (
-            <>
-              <Link to="/dashboard" style={{ color: '#555', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
-                <LayoutDashboard size={18}/> <span>Offers</span>
-              </Link>
-              <Link to="/saved" style={{ color: '#555', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
-                <Heart size={18}/> <span>Saved</span>
-              </Link>
-            </>
+            <Link to="/dashboard" style={{ color: '#555', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
+              <LayoutDashboard size={18}/> <span>Offers</span>
+            </Link>
           )}
           <button onClick={handleLogout} className="btn" style={{ background: '#eee', color: '#333', padding: '8px 12px', fontSize: '0.85rem' }}>
             <LogOut size={16}/>
