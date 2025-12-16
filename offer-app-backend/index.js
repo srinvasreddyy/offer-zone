@@ -13,13 +13,18 @@ connectDB();
 
 const app = express();
 
-// Updated CORS to allow your Vercel deployment and local development
+// CORS Config: Allowed Vercel app + Localhost
 app.use(cors({
   origin: ['https://offer-zone-nu.vercel.app', 'http://localhost:5173', 'http://localhost:3000'],
   credentials: true
 }));
 
 app.use(express.json()); // Body parser
+
+// --- HOME ROUTE (New) ---
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
 // API Endpoints
 app.use('/api/auth', authRoutes);
