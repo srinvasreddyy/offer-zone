@@ -14,19 +14,22 @@ const Login = () => {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/google`, {
+      // FIX: /api prefix added
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/google`, {
         token: credentialResponse.credential
       });
       login(res.data, res.data.token);
       navigate(res.data.role === 'admin' ? '/admin' : '/dashboard');
     } catch (error) {
+      console.error(error);
       alert('Google Login Failed');
     }
   };
 
   const sendOtp = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/send-otp`, { email });
+      // FIX: /api prefix added
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/send-otp`, { email });
       setStep(2);
     } catch (error) {
       alert('Error sending OTP');
@@ -35,7 +38,8 @@ const Login = () => {
 
   const verifyOtp = async () => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login-otp`, { email, otp });
+      // FIX: /api prefix added
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login-otp`, { email, otp });
       login(res.data, res.data.token);
       navigate(res.data.role === 'admin' ? '/admin' : '/dashboard');
     } catch (error) {
